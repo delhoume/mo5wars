@@ -1,0 +1,13 @@
+/build
+/dist
+/parts
+*~
+._*
+*#
+tools/buildfred
+tools/fdfs
+tools/gendelays
+tools/salvador
+tools/zx0
+tools/build67
+/tmp

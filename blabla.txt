@@ -1,0 +1,58 @@
+j ai passé beaucoup trop de temp là dessus mais j'ai enfin quelque chose de montrable...
+
+Ca prend la forme d'une image .fd de disquette stas§ndard de 327680 octets en FAT, qui boote sur la d;emo
+
+Fichier mo5wars.fd
+
+Répertoire unité 0 disquette mo5wars.fd 
+--------------------------------------------------------
+Nom      Ext  Type   Alloc  Taille  Commentaires    Flag
+--------+---+------+-------+------+-----------------+--+
+MO5WARS  BIN  02 00  4f 07a  11898          
+ANIM64   ZXS  00 00  49 0c9 125129          
+--------+---+------+-------+------+-----------------+--+
+Nombre de fichiers............: 2 + 0 effacés
+Taille totale des fichiers....: 137027 octets
+
+La compression est faite avec zx0 par blocs de 10 frames et les blocs sont lus et décompressés
+à la demande depuis la d7, d'où quelques saccades toutes les environ 10 à 12 frames quand on change de secteur.
+
+L'intégralité des 3845 frames sont présentes, mais elles sont en 64 caractères contre 67 originales.
+Avec la police 5x5 en 320 on ne peut pas mettre plus. Elle a été un peu modifiée pour un meilleur rendu.
+
+Je pensais qu'il y  avait une limite à 64k pour les fichiers mais ca marche comme ca...
+
+comme j n'ai pas reussi à le faire boucler proprement, à la fin je reboote...
+
+Tout est codé en  C avec CMOC sur Mac, avec un peu d'aide des IA de temps en temps, par exemple pour l'assembleur
+qui est nécéssaire pour accéder à un secteur donné.
+
+
+La décompression zx0 est en C.
+
+Pas de makefile mais 2 scripts shell:
+
+- doit.sh qui crée le fichier de data
+
+- build.sh qui lance cmoc et construit le .fd
+
+Il faut quelques programmes maison ou externes, ils sont compilés si possible directement dans les scripts. 
+sauf CMOC qu'il faut trouver ou builder autrement et zx0 et salvador qui compilent depuis leur source Github
+
+l'ensemble de l'animation, avec les délais relatifs entre frames, prend 1h15 contre 1/4 h prévus, 
+il y de quoi amélioer les performnances, bien que ca ne soit pas si mal optimisé...pour du C...
+
+J'ai plein d'idées mais plus trop de temps....
+
+Le fd est jouable dans tous les émulateurs, aucune idée de si ca marche sur un vrai mo5.
+Dans dcmoto choisir Controlleur CD90-640 et MO5 comme machine. et on peut abuser de F7 ;-)
+
+Merci à 
+Simon Jensen (quel boulot)
+Daniel Coulomb (dcmoto dcfutils)
+Pierrre Sarrazin (CMOC)
+Einer Saukas (ZX0)
+Emmanuel Marty (Salvador)
+OlivierP-To8 (BootMoto fdfs.c)
+Martin Kirst (nitram 5x5 font
+Thierry Le Got (mo5 sdk, mcp srver)
