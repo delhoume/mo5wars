@@ -10,20 +10,20 @@ All 3845 frames are displayed, but the 320 pixels horizontal resolution only all
 so the animation is cropped to 64x13.
 
 Video dedicated memory takes 8k out of the 48k. so memory constraints are high.
-These 8k are shared between "form" and "color"  banks.
+These 8k are shared between "form" and "color" banks, noe of them is accessible at a given moment.
  
  - "color" defines pixel color. each byte is divided in 2 nibbles,
 one for the background and one for the foreground that give an index to a color in a 4 bit  (15 colors) palette.
 
 - "form" describes a pixel color with 1 bit, 0 for background and 1 for foreground
-
+- 
 1) preparing the animation
 
-- each line is converted from variable up to 67 chars by padding with spaces, with delay lines removed
-- 1 char is trimmed on the left and 2 on the right
+- each line is converted from variable length terminayted by '\n' up to 67 chars by padding with spaces, with delay lines removed
+- 1 char is trimmed on the left and 2 on the right to, match 320 pixels as 64 5 pixel wide font.
 - with space padding we have in fact a better compression than leaving end of line.
 - raw 13x64x3845 are grouped into 10 frames parts, 385 parts of 13x64x10 = 8320 bytes
-- each part is zx0 compressed to a size from 8320 to 25 to 777 bytes, a very large compression.
+- each part is zx0 compressed from 8320 to 25 - 777 bytes, a very large compression ratio
 - groups of 10 frames leads to less compression but make streaming easier, as 8320 by can be allocated in memory to hold 10 uncompressed frames.
 - zx0 compressed parts are packed in a single 124641 byte file with minimal additional structure
 - delays between frames are handled separately and an .h include file is generated from it.
@@ -39,8 +39,8 @@ one for the background and one for the foreground that give an index to a color 
 
 3) Performance
  - the mo5 is very slow, anm code is written in C, moderately optimised.
- - the actual complete animation rendering takes about 1h15
- - Esch frame is fully renderedfrtom the uncompressed 64x13 ascii buffer
+ - the actual complete animation rendering takes about 1h15  (now 1h5 with char drawing optimisation)
+ - Each frame is fully rendered from the uncompressed 64x13 ascii buffer
  - The critical path is in individual char rendering but a number of other optimisations could be very effective:
    - keeping a previous frame and drawing only differences to the double buffer (simple)
    - rendering directly the zx0 opcodes to graphics, leveraging sequences of similar chars
@@ -48,5 +48,5 @@ one for the background and one for the foreground that give an index to a color 
    - the cost of decompression could be distributed per frame instead of per 10 frames part.
    - The cost of reading a new sector from the disk each 256 bytes means have a  noticeable additional delay each variable number of frames depending on compression
    - rewriting part in assembly or reusing assembly versions of zx0 could bring some gain.
-   - getting rid of fat format and accessing the drive drectly could be good for performance.
+   - getting rid of fat format and accessing the drive directly as raw sectors could be good for performance.
    - digging into asciinema for ideas
