@@ -28,3 +28,25 @@ one for the background and one for the foreground that give an index to a color 
 - zx0 compressed parts are packed in a single 124641 byte file with minimal additional structure
 - delays between frames are handled separately and an .h include file is generated from it.
 
+2) rendering the animation
+
+- in a loop a 10 frame bloc is loaded into memory  (max 777 byte buffer) and uncompressed to a 8320 byte buffer
+- the ascii buffer isndividd in 10 frames, each is rendered in sequence to a 320 pixel x 13 lines (5 pixel font + 1 pixel between lines) "form" double buffer
+- double buffer is copied in video ram on vertical sync signal, if rendering was made directly to video memory, it would take several vbl, and partial frames would be displayed, resulting in flickering. My estimation is that max 100 chars can be rendered between two vertical blank.
+- we wait for the frame defined delay milliseconds
+- the next 9 frames are rendered without decompression or disk access.
+
+
+3) Performance
+ - the mo5 is very slow, anm code is written in C, moderately optimised.
+ - the actual complete animation rendering takes about 1h15
+ - Esch frame is fully renderedfrtom the uncompressed 64x13 ascii buffer
+ - The critical path is in individual char rendering but a number of other optimisations could be very effective:
+   - keeping a previous frame and drawing only differences to the double buffer (simple)
+   - rendering directly the zx0 opcodes to graphics, leveraging sequences of similar chars
+   - as font is 5x5 rendering each char individually involves heavy bitwise operations depending on the x location of the char, we can use full byte copy for inner repetitions when sequence of the same char is drawn (this is the most promising possible gain)
+   - the cost of decompression could be distributed per frame instead of per 10 frames part.
+   - The cost of reading a new sector from the disk each 256 bytes means have a  noticeable additional delay each variable number of frames depending on compression
+   - rewriting part in assembly or reusing assembly versions of zx0 could bring some gain.
+   - getting rid of fat format and accessing the drive drectly could be good for performance.
+   - digging into asciinema for ideas
